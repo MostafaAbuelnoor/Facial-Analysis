@@ -1,39 +1,51 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' ##This is used to suppress the warnings given by tensorflow
+import tensorflow as tf
+#Comment the above lines if there's an error and the code isn't working as expected
+
 from deepface import DeepFace
 import pandas as pd
 
+# Add photos to the photos folder in order to analyse them or do facial recognition on them
+
+def main():
+    faceRecognise("photos/will.jpg", "photos")
+    faceAnalysis("photos/mostafa.jpg")
+    faceVerify("photos/jackie.jpg", "photos/angelina.jpg")
+    faceStream("photos")
+
+
 
 ############################### Face recognition
-#df = DeepFace.find(img_path = 'target/will.jpg', db_path = 'photos')
-#print(df.head())
-##dfs = DeepFace.find(img_path = ["img1.jpg", "img2.jpg"], db_path = "C:/workspace/my_db")
-
-
-################################ face recognition with different models
-
-models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "DeepID", "Dlib"]
-for model in models:
-   result = DeepFace.verify("target/will.jpg", "photos/will2.jpg", model_name = "DeepID")
-   df = DeepFace.find(img_path = "target/will.jpg", db_path = "photos", model_name = model)
-   print(result)
-   print(df.head())
-
-
-
-
+# This function looks at a photo (Argument 1) and sees if the person is in another photo in a database (Argument 2)
+def faceRecognise(pic, database):
+    df = DeepFace.find(img_path = pic, db_path = database) #Storing the results in a panda dataframe to be analysed
+    print(df.head())
+  
 ############################### Face analysis
-
-# obj = DeepFace.analyze("jackie.jpg", actions = ['age', 'gender', 'race', 'emotion'])
-# #objs = DeepFace.analyze(["img1.jpg", "img2.jpg", "img3.jpg"]) #analyzing multiple faces same time
-# print(obj["age"]," years old ",obj["dominant_race"]," ",obj["dominant_emotion"]," ", obj["gender"])
+# This function analyzes the face in the picture(Argument) and gives out the estimated age, gender, race and emotion
+def faceAnalysis(pic):
+    obj = DeepFace.analyze(pic, actions = ['age', 'gender', 'race', 'emotion']) # Analysing the picture and storing the results to be printed later
+    print("Age: ",obj["age"])
+    print("Race: ", obj["dominant_race"]) 
+    print("Emotion: ", obj["dominant_emotion"]) 
+    print("Gender: ", obj["gender"])
 
 
 ############################### Face verification
-# result  = DeepFace.verify("will.jpg", "cropped.jpg")
-# #results = DeepFace.verify([['img1.jpg', 'img2.jpg'], ['img1.jpg', 'img3.jpg']])
-# print("Is verified: ", result["verified"])
-
+# This function returns whether or not two pictures(Both arguments) contain the same person
+def faceVerify(pic1, pic2):
+    result  = DeepFace.verify(pic1, pic2) # Comparing the two pictures
+    print("Same person: ", result["verified"])
 
 
 ############################### Real time face analysis
-# DeepFace.stream("database")
+# This function will give a real time analysis (Age, gender, emotion) of your face by opening the 
+# webcamera and compares it to pictures in the database specified in the argument
+# Note: My webcamera is not working properly so I am not sure if this works as intended or not.  
+def faceStream(database):
+    DeepFace.stream(database)
 
+
+if __name__ == "__main__":
+    main()
